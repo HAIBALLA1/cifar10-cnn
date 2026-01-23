@@ -1,0 +1,33 @@
+# === Environnements virtuels ===
+.venv/
+venv/
+env/
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# === Données ===
+data/
+datasets/
+*.pt
+*.pth
+
+# === Logs / outputs ===
+logs/
+runs/
+checkpoints/
+outputs/
+
+# === Jupyter / Colab ===
+.ipynb_checkpoints/
+
+# === IDE ===
+.vscode/
+.idea/
+
+# === OS ===
+.DS_Store
+Thumbs.db

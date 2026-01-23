@@ -1,0 +1,61 @@
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
+
+CIFAR10_CLASSES = [
+    "airplane","automobile","bird","cat","deer","dog","frog","horse","ship","truck"
+]
+
+def get_transforms(use_augmentation=True):
+    mean = (0.5, 0.5, 0.5)
+    std = (0.5, 0.5, 0.5)
+
+    if use_augmentation:
+        train_tf = transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(32, padding=4),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+    else:
+        train_tf = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+
+    test_tf = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std),
+    ])
+
+    return train_tf, test_tf
+
+def get_cifar10_loaders(
+    data_dir="./data",
+    batch_size=128,
+    num_workers=2,
+    use_augmentation=True):
+
+    train_tf, test_tf = get_transforms(use_augmentation)
+    train_ds = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=train_tf)
+    test_ds = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=test_tf)
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True,
+    )
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True,
+    )
+
+    return train_loader, test_loader
+
+
+
