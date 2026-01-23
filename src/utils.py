@@ -15,3 +15,9 @@ def set_seed(seed: int = 42):
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def add_noise(x, noise_std=0.2):
+    noise = torch.randn_like(x) * noise_std
+    x_noisy = x + noise
+    return torch.clamp(x_noisy, -1.0, 1.0)

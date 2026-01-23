@@ -1,16 +1,8 @@
 # src/train.py
 import torch
 import torch.nn as nn
+from src.utils import add_noise
 
-
-def add_noise(x, noise_std=0.2):
-    """
-    Ajoute un bruit gaussien aux images.
-    Les images sont déjà normalisées dans [-1, 1].
-    """
-    noise = torch.randn_like(x) * noise_std
-    x_noisy = x + noise
-    return torch.clamp(x_noisy, -1.0, 1.0)
 
 
 def train(
