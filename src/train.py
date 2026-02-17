@@ -4,7 +4,6 @@ import torch.nn as nn
 from src.utils import add_noise
 
 
-
 def train(
     model,
     train_loader,
@@ -13,11 +12,17 @@ def train(
     epochs=10,
     lr=1e-3,
     noise_std=0.2,
+    save_path="dae_best.pth",
 ):
     model.to(device)
 
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    # ↓ baisse le LR au fil du temps (simple et efficace)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+
+    best_loss = float("inf")
 
     for epoch in range(1, epochs + 1):
         # ===== TRAIN =====
@@ -27,7 +32,9 @@ def train(
         for x_clean, _ in train_loader:
             x_clean = x_clean.to(device)
 
-            x_noisy = add_noise(x_clean, noise_std)
+            # bruit variable pendant le train (meilleure généralisation)
+            cur_std = noise_std * torch.rand(1).item()
+            x_noisy = add_noise(x_clean, cur_std)
 
             optimizer.zero_grad()
             x_recon = model(x_noisy)
@@ -47,6 +54,8 @@ def train(
         with torch.no_grad():
             for x_clean, _ in test_loader:
                 x_clean = x_clean.to(device)
+
+                # bruit FIXE en test (comparaison stable)
                 x_noisy = add_noise(x_clean, noise_std)
 
                 x_recon = model(x_noisy)
@@ -56,12 +65,19 @@ def train(
 
         test_loss /= len(test_loader)
 
+        # scheduler step après chaque epoch
+        scheduler.step()
+
+        # sauvegarder le meilleur modèle
+        if test_loss < best_loss:
+            best_loss = test_loss
+            torch.save(model.state_dict(), save_path)
+
         print(
             f"Epoch {epoch}/{epochs} | "
             f"train MSE: {train_loss:.4f} | "
-            f"test MSE: {test_loss:.4f}"
+            f"test MSE: {test_loss:.4f} | "
+            f"best: {best_loss:.4f}"
         )
 
-    # Sauvegarde du modèle
-    torch.save(model.state_dict(), "dae.pth")
-    print("Model saved as dae.pth")
+    print(f"Best model saved as {save_path}")

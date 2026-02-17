@@ -19,5 +19,4 @@ def get_device():
 
 def add_noise(x, noise_std=0.2):
     noise = torch.randn_like(x) * noise_std
-    x_noisy = x + noise
-    return torch.clamp(x_noisy, -1.0, 1.0)
+    return x + noise

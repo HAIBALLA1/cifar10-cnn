@@ -7,8 +7,9 @@ CIFAR10_CLASSES = [
 ]
 
 def get_transforms(use_augmentation=True):
-    mean = (0.5, 0.5, 0.5)
-    std = (0.5, 0.5, 0.5)
+
+    mean = (0.4914, 0.4822, 0.4465)
+    std = (0.2023, 0.1994, 0.2010)
 
     if use_augmentation:
         train_tf = transforms.Compose([
