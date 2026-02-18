@@ -19,7 +19,7 @@ def train(
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    # ↓ baisse le LR au fil du temps (simple et efficace)
+    # on baisse le LR au fil du temps
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
     best_loss = float("inf")
@@ -32,7 +32,7 @@ def train(
         for x_clean, _ in train_loader:
             x_clean = x_clean.to(device)
 
-            # bruit variable pendant le train (meilleure généralisation)
+            # bruit variable pendant le train
             cur_std = noise_std * torch.rand(1).item()
             x_noisy = add_noise(x_clean, cur_std)
 
@@ -55,7 +55,7 @@ def train(
             for x_clean, _ in test_loader:
                 x_clean = x_clean.to(device)
 
-                # bruit FIXE en test (comparaison stable)
+                # bruit FIXE en test
                 x_noisy = add_noise(x_clean, noise_std)
 
                 x_recon = model(x_noisy)
@@ -68,7 +68,7 @@ def train(
         # scheduler step après chaque epoch
         scheduler.step()
 
-        # sauvegarder le meilleur modèle
+        # on sauvegarde le meilleur modèle
         if test_loss < best_loss:
             best_loss = test_loss
             torch.save(model.state_dict(), save_path)

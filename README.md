@@ -81,17 +81,18 @@ Images are properly denormalized for visualization.
 
 ---
 
+
 ## Results
 
 After training for 30 epochs:
 
-- Final Train MSE: 0.0123  
-- Best Validation MSE: 0.0139  
+- Final Train MSE: 0.0446
+- Final Test MSE: 0.0459
+- Best Test MSE: 0.0459 (saved as `dae_best.pth`)
 
-The model effectively removes Gaussian noise while maintaining  
-the structural integrity and color distribution of CIFAR-10 images.
+The model effectively removes Gaussian noise while maintaining
+the overall structure and color distribution of CIFAR-10 images.
 
-(You can add a reconstruction image here if desired.)
 
 ---
 

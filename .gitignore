@@ -1,33 +1,60 @@
-# === Environnements virtuels ===
+# =========================
+# Environnements virtuels
+# =========================
 .venv/
 venv/
 env/
+ENV/
 
-# === Python ===
+# =========================
+# Python
+# =========================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.so
+*.egg-info/
+build/
+dist/
 
-# === Données ===
+# =========================
+# Données
+# =========================
 data/
 datasets/
 *.pt
 *.pth
+*.ckpt
 
-# === Logs / outputs ===
+# =========================
+# Logs / outputs
+# =========================
 logs/
 runs/
 checkpoints/
 outputs/
+images/*.png
 
-# === Jupyter / Colab ===
+# =========================
+# Jupyter / Colab
+# =========================
 .ipynb_checkpoints/
 
-# === IDE ===
+# =========================
+# IDE
+# =========================
 .vscode/
 .idea/
 
-# === OS ===
+# =========================
+# OS
+# =========================
 .DS_Store
 Thumbs.db
+
+# =========================
+# Misc
+# =========================
+*.log
+*.csv
