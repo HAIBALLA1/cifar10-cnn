@@ -35,6 +35,8 @@ runs/
 checkpoints/
 outputs/
 
+.hydra/
+mlruns/
 
 # =========================
 # Jupyter / Colab
