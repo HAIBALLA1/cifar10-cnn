@@ -34,7 +34,7 @@ logs/
 runs/
 checkpoints/
 outputs/
-images/*.png
+
 
 # =========================
 # Jupyter / Colab
