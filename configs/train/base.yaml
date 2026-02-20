@@ -1,6 +1,6 @@
 epochs: 20
 lr: 0.001
-device: cuda
+device: cpu
 seed: 42
 noise_std: 0.2
 save_path: dae_best.pth
