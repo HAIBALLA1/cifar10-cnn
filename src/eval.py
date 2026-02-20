@@ -2,7 +2,7 @@
 import torch
 import matplotlib.pyplot as plt
 
-from src.data import get_cifar10_loaders
+from src.data import get_loaders
 from src.model import DenoisingAutoencoder
 from src.utils import add_noise
 
@@ -66,7 +66,7 @@ def evaluate(model_path="dae.pth", noise_std=0.2):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Charger les données de test
-    _, test_loader = get_cifar10_loaders(
+    _, test_loader = get_loaders(
         batch_size=16,
         use_augmentation=False
     )
