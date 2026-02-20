@@ -4,23 +4,26 @@ import torch.nn as nn
 from src.utils import add_noise
 
 
-def train(
-    model,
-    train_loader,
-    test_loader,
-    device,
-    epochs=10,
-    lr=1e-3,
-    noise_std=0.2,
-    save_path="dae_best.pth",
-):
+def train(model, train_loader, test_loader, cfg):
+
+
+    tcfg = cfg.train
+
+    device = torch.device(tcfg.device)
+    epochs = int(tcfg.epochs)
+    lr = float(tcfg.lr)
+    noise_std = float(getattr(tcfg, "noise_std", 0.2))
+    save_path = str(getattr(tcfg, "save_path", "dae_best.pth"))
+
     model.to(device)
 
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    # on baisse le LR au fil du temps
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    # scheduler configurable
+    step_size = int(getattr(tcfg, "scheduler_step_size", 10))
+    gamma = float(getattr(tcfg, "scheduler_gamma", 0.5))
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 
     best_loss = float("inf")
 
@@ -65,10 +68,8 @@ def train(
 
         test_loss /= len(test_loader)
 
-        # scheduler step après chaque epoch
         scheduler.step()
 
-        # on sauvegarde le meilleur modèle
         if test_loss < best_loss:
             best_loss = test_loss
             torch.save(model.state_dict(), save_path)

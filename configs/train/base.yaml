@@ -2,3 +2,7 @@ epochs: 20
 lr: 0.001
 device: cuda
 seed: 42
+noise_std: 0.2
+save_path: dae_best.pth
+scheduler_step_size: 10
+scheduler_gamma: 0.5
