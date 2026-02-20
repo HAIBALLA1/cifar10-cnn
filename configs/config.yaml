@@ -1,5 +1,15 @@
-defaults :
-  -data: cifar10
-  -train: train
-  -model: simple_cnn
-  -_self_:
+defaults:
+  - data: cifar10
+  - train: base
+  - model: dae
+  - _self_
+
+mlflow:
+  enabled: true
+  tracking_uri: file:./mlruns
+  experiment_name: cifar10-dae
+  run_name: ${now:%Y-%m-%d_%H-%M-%S}
+
+benchmark:
+  noise_levels: [0.05, 0.1, 0.2, 0.3]
+  viz_noise_std: 0.2

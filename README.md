@@ -1,121 +1,169 @@
-# Denoising Autoencoder on CIFAR-10
+# Robust Convolutional Denoising Autoencoder on CIFAR-10
+Hydra • MLflow • Docker • PyTorch
 
-## Project Overview
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red)
+![Hydra](https://img.shields.io/badge/Hydra-Config--Driven-6f42c1)
+![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-0194E2)
+![Docker](https://img.shields.io/badge/Docker-Reproducible-2496ED)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-This project implements a Convolutional Denoising Autoencoder trained on the CIFAR-10 dataset.
+---
 
-The objective is to reconstruct clean images from noisy inputs using deep learning techniques. 
-The model learns to remove Gaussian noise while preserving the structure and color distribution of images.
+## Overview
+
+This project implements a Convolutional Denoising Autoencoder (DAE) trained on CIFAR-10 to reconstruct clean images from Gaussian-corrupted inputs.
+
+It combines:
+
+- Deep Learning (PyTorch)
+- Config-driven experiments (Hydra)
+- Full experiment tracking (MLflow)
+- Robustness benchmarking
+- Reproducible execution (Docker)
+
+The focus is not only on model performance, but also on clean ML engineering practices.
+
+---
+
+## Architecture Diagram
+
+```
+        +-------------------+
+        |   Noisy Image     |
+        |   (32x32x3)       |
+        +-------------------+
+                 │
+                 ▼
+         ┌────────────────┐
+         │    Encoder     │
+         │ Conv + BN + ReLU
+         │ MaxPool layers │
+         └────────────────┘
+                 │
+                 ▼
+           Latent Space
+                 │
+                 ▼
+         ┌────────────────┐
+         │    Decoder     │
+         │ ConvTranspose  │
+         │ + Conv         │
+         └────────────────┘
+                 │
+                 ▼
+        +-------------------+
+        | Reconstructed Img |
+        +-------------------+
+```
 
 ---
 
 ## Dataset
 
-Dataset used: **CIFAR-10**
+Dataset: CIFAR-10
 
 - 60,000 RGB images
-- Image size: 32 × 32
+- 32 × 32 resolution
 - 10 object classes
 - 50,000 training images
 - 10,000 test images
 
-### Normalization
-
-Images are normalized using CIFAR-10 statistics:
+Normalization:
 
 Mean = (0.4914, 0.4822, 0.4465) 
 Std  = (0.2023, 0.1994, 0.2010)
 
-### Data Augmentation (Training Only)
+Training augmentation:
 
-- Random horizontal flip 
-- Random crop (with padding)
-
----
-
-## Model Architecture
-
-The model follows an encoder–decoder structure.
-
-### Encoder
-- Conv2D (3 → 32) + BatchNorm + ReLU 
-- Conv2D (32 → 32) + BatchNorm + ReLU 
-- MaxPool (32×32 → 16×16) 
-- Conv2D (32 → 64) + BatchNorm + ReLU 
-- MaxPool (16×16 → 8×8)
-
-### Decoder
-- ConvTranspose2D (64 → 32) (8×8 → 16×16) 
-- ConvTranspose2D (32 → 32) (16×16 → 32×32) 
-- Conv2D (32 → 3)
-
-The encoder compresses spatial information, and the decoder reconstructs the original image resolution using transpose convolutions.
+- Random horizontal flip
+- Random crop with padding
 
 ---
 
-## Training Procedure
+## Training
 
-- Loss Function: Mean Squared Error (MSE)
+- Loss: Mean Squared Error (MSE)
 - Optimizer: Adam
-- Learning Rate Scheduler: StepLR
-- Best model checkpointing based on validation loss
+- Scheduler: StepLR
+- Best model checkpointing
+- Seed control for reproducibility
+- Dynamic Gaussian noise injection during training
+- Fixed noise during evaluation
 
-### Noise Strategy
+Train locally:
 
-- Dynamic Gaussian noise during training 
-- Fixed noise level during evaluation 
-
-This improves generalization and model robustness.
+```bash
+python run_train.py
+```
 
 ---
 
 ## Evaluation
 
-During evaluation, the model displays:
+Evaluate and log results to MLflow:
 
-- Noisy images 
-- Reconstructed images 
-- Clean images 
+```bash
+python -m src.eval train.save_path=dae_best.pth
+```
 
-Images are properly denormalized for visualization.
+Launch MLflow UI:
 
----
+```bash
+mlflow ui --backend-store-uri ./mlruns
+```
 
-## Results
+Open:
 
-After training for 30 epochs:
-
-- Final Train MSE: 0.0446 
-- Final Test MSE: 0.0459 
-- Best Test MSE: 0.0459 (saved as `dae_best.pth`) 
-
-### Robustness to Noise (Benchmark)
-
-The trained model was evaluated under different Gaussian noise levels:
-
-| Noise Std | Test MSE | PSNR (dB) |
-|------------|----------|------------|
-| 0.05 | 0.0403 | 13.95 |
-| 0.10 | 0.0414 | 13.83 |
-| 0.20 | 0.0458 | 13.39 |
-| 0.30 | 0.0533 | 12.73 |
-
-The model remains stable under moderate noise levels and degrades gracefully as noise intensity increases.
-
-### Example Reconstruction
-
-![Reconstruction Example](images/recon_grid.png)
+http://127.0.0.1:5000
 
 ---
 
-## Technical Highlights
+## Robustness Benchmark
 
-- Encoder–Decoder CNN architecture 
-- Batch Normalization for stable training 
-- Learning rate scheduling 
-- Best model checkpointing 
-- Dynamic noise augmentation 
-- Proper image denormalization for visualization 
+Evaluate model across multiple Gaussian noise levels:
+
+```bash
+python -m scripts.benchmark train.save_path=dae_best.pth
+```
+
+Outputs:
+
+- CSV metrics table
+- Reconstruction grid
+- MLflow logged metrics
+
+---
+
+## Docker Usage
+
+Train:
+
+```bash
+docker compose up --build dae
+```
+
+Launch MLflow:
+
+```bash
+docker compose up --build mlflow
+```
+
+Open:
+
+http://localhost:5000
+
+Evaluate with Docker:
+
+```bash
+docker compose run --rm dae python -m src.eval train.save_path=dae_best.pth
+```
+
+Benchmark with Docker:
+
+```bash
+docker compose run --rm dae python -m scripts.benchmark train.save_path=dae_best.pth
+```
 
 ---
 
@@ -123,83 +171,80 @@ The model remains stable under moderate noise levels and degrades gracefully as 
 
 ```
 src/
- ├── data.py        # Data loading and preprocessing
- ├── model.py       # Autoencoder architecture
- ├── train.py       # Training loop and checkpointing
- ├── eval.py        # Evaluation and visualization
- ├── utils.py       # Utility functions
+ ├── data.py
+ ├── model.py
+ ├── train.py
+ ├── eval.py
+ ├── utils.py
+
 scripts/
- ├── benchmark.py   # Performance benchmarking
- ├──run_train.py
+ ├── benchmark.py
+
+configs/
+ ├── config.yaml
+ ├── model/
+ ├── data/
+ ├── train/
+
+run_train.py
+docker-compose.yml
+Dockerfile
 ```
 
 ---
 
-## Why This Project?
+## Hydra Overrides
 
-Image denoising is a fundamental computer vision task used in:
+Change noise level:
 
-- Photography enhancement 
-- Medical imaging 
-- Image preprocessing pipelines 
+```bash
+python run_train.py train.noise_std=0.2
+```
 
-This project demonstrates practical implementation of convolutional autoencoders in PyTorch, including training optimization and robustness evaluation.
+Change epochs:
+
+```bash
+python run_train.py train.epochs=50
+```
+
+---
+
+## Why This Project Matters
+
+Image denoising is widely used in:
+
+- Medical imaging
+- Photography enhancement
+- Preprocessing for computer vision systems
+
+This repository demonstrates:
+
+- Deep learning modeling
+- Robustness evaluation
+- Reproducibility
+- Clean experiment management
+
+---
+
+## Skills Demonstrated
+
+- PyTorch Deep Learning
+- CNN Autoencoders
+- Data preprocessing and normalization
+- Learning rate scheduling
+- Model checkpointing
+- Robustness benchmarking
+- Hydra configuration management
+- MLflow experiment tracking
+- Docker containerization
+- Reproducible ML pipelines
 
 ---
 
 ## Future Improvements
 
 - Add SSIM metric
-- Implement U-Net architecture with skip connections 
-- Add perceptual loss 
-- Experiment with different noise types 
-- Train on higher resolution datasets 
-- Integrate TensorBoard logging 
-
----
-
-## Skills Demonstrated
-
-- Deep Learning with PyTorch 
-- CNN-based Autoencoders 
-- Image preprocessing and normalization 
-- Training pipeline design 
-- Learning rate scheduling 
-- Model checkpointing 
-- Performance benchmarking 
-- Experiment reproducibility 
-
----
-
-## How to Run
-
-### Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Train the model
-
-```bash
-python run_train.py
-```
-
-### Benchmark the model
-
-```bash
-python -m scripts.benchmark
-```
-
-### Evaluate visual reconstructions
-
-```bash
-python -m src.eval
-```
-
-The best model checkpoint will be saved as:
-
-```
-dae_best.pth
-```
-
+- Implement U-Net with skip connections
+- Add perceptual loss
+- Export to ONNX / TorchScript
+- Add CI pipeline

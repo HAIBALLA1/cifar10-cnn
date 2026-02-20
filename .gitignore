@@ -19,7 +19,7 @@ build/
 dist/
 
 # =========================
-# Données
+# Données / modèles
 # =========================
 data/
 datasets/
@@ -28,15 +28,23 @@ datasets/
 *.ckpt
 
 # =========================
-# Logs / outputs
+# Logs / outputs / tracking
 # =========================
 logs/
 runs/
 checkpoints/
 outputs/
-
-.hydra/
+artifacts/
 mlruns/
+.hydra/
+wandb/
+
+# =========================
+# DB (MLflow sqlite etc.)
+# =========================
+*.db
+*.sqlite
+*.sqlite3
 
 # =========================
 # Jupyter / Colab
@@ -59,4 +67,3 @@ Thumbs.db
 # Misc
 # =========================
 *.log
-*.csv

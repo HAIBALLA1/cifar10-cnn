@@ -1,6 +1,6 @@
 import torch
 from src.model import DenoisingAutoencoder
-from src.data import get_cifar10_loaders
+from src.data import get_loaders
 from src.utils import add_noise
 
 def test_model_output_shape():
@@ -10,7 +10,7 @@ def test_model_output_shape():
     assert y.shape == x.shape
 
 def test_dataloader_shape():
-    train_loader, _ = get_cifar10_loaders(batch_size=4, use_augmentation=False)
+    train_loader, _ = get_loaders(batch_size=4, use_augmentation=False)
     x, _ = next(iter(train_loader))
     assert x.shape == (4, 3, 32, 32)
 

@@ -82,3 +82,9 @@ def train(model, train_loader, test_loader, cfg):
         )
 
     print(f"Best model saved as {save_path}")
+
+    return {
+        "best_test_loss": best_loss,
+        "final_train_loss": train_loss,
+        "final_test_loss": test_loss,
+    }
