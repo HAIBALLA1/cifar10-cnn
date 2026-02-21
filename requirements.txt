@@ -1,9 +1,8 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 
---index-url https://download.pytorch.org/whl/cpu
-
-# Deep Learning
-torch==2.2.0
-torchvision==0.17.0
+# Deep Learning 
+torch==2.2.0+cpu
+torchvision==0.17.0+cpu
 
 # Data & maths
 numpy>=1.26.0
